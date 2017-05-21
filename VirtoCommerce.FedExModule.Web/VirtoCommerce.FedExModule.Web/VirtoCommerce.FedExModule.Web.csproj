@@ -81,6 +81,10 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="VirtoCommerce.Domain, Version=2.22.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\VirtoCommerce.Domain.2.22.1\lib\net461\VirtoCommerce.Domain.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="VirtoCommerce.Platform.Core, Version=2.12.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\VirtoCommerce.Platform.Core.2.12.6\lib\net461\VirtoCommerce.Platform.Core.dll</HintPath>
     </Reference>
@@ -106,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\Api\FedExModuleController.cs" />
+    <Compile Include="FedExShippingMethod.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

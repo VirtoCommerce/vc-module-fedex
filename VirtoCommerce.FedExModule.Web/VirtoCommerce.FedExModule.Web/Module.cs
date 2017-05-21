@@ -1,9 +1,19 @@
-﻿using VirtoCommerce.Platform.Core.Modularity;
+﻿using Microsoft.Practices.Unity;
+using VirtoCommerce.Domain.Shipping.Services;
+using VirtoCommerce.Platform.Core.Modularity;
+using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.FedExModule.Web
 {
     public class Module : ModuleBase
     {
+        private readonly IUnityContainer _container;
+
+        public Module(IUnityContainer container)
+        {
+            _container = container;
+        }
+
         public override void SetupDatabase()
         {
         }
@@ -14,6 +24,10 @@ namespace VirtoCommerce.FedExModule.Web
 
         public override void PostInitialize()
         {
+            var settingManager = _container.Resolve<ISettingsManager>();
+            var shippingService = _container.Resolve<IShippingMethodsService>();
+            shippingService.RegisterShippingMethod(
+                () => new FedExShippingMethod(settingManager.GetModuleSettings("FedExShippingMethodModule"), "FedEx"));
         }
     }
 }
