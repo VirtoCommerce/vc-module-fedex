@@ -8,6 +8,8 @@ namespace VirtoCommerce.FedExModule.Web
 {
     public class FedExShippingMethod : ShippingMethod
     {
+        // https://github.com/VirtoCommerce/vc-module-core/blob/210bc9c16d68284fa50fda9c1df226a0519b4386/VirtoCommerce.CoreModule.Data/Shipping/FixedRateShipmentMethod.cs
+
         private readonly SettingEntry[] _settings;
 
         public FedExShippingMethod(SettingEntry[] settings, string code) : base(code)
