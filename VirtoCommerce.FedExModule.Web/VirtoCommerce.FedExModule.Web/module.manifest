@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <module>
   <id>VirtoCommerce.FedEx</id>
-  <version>0.0.1</version>
+  <version>0.0.3</version>
   <platformVersion>2.10.0</platformVersion>
   <title>FedEx Shipping Method Module</title>
   <description>Provides FedEx shipping rates based on product and destination attributes.</description>
   <authors>
     <author>Montané Enterprises</author>
   </authors>
-  <assemblyFile>VirtoCommerce.FedEx.Web.dll</assemblyFile>
-  <moduleType>VirtoCommerce.ManagedModule.Web.Module, VirtoCommerce.ManagedModule.Web</moduleType>
+  <assemblyFile>VirtoCommerce.FedExModule.Web.dll</assemblyFile>
+  <moduleType>VirtoCommerce.FedExModule.Web.Module, VirtoCommerce.FedExModule.Web</moduleType>
   <styles>
     <directory virtualPath="$/Content/css" searchPattern="*.css" searchSubdirectories="true" />
   </styles>
