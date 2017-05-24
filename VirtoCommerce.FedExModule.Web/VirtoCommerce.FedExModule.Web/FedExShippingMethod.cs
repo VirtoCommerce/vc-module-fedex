@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using VirtoCommerce.Domain.Common;
 using VirtoCommerce.Domain.Shipping.Model;
+using VirtoCommerce.FedExModule.Web.Integration;
 using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.FedExModule.Web
@@ -24,6 +25,76 @@ namespace VirtoCommerce.FedExModule.Web
             {
                 throw new NullReferenceException("shippingEvalContext");
             }
+
+            var rateService = new Integration.RateService();
+
+            var rateRequest = new RateRequest
+            {
+                CarrierCodes = new CarrierCodeType[0],
+                ClientDetail = new ClientDetail
+                {
+                    AccountNumber = "",
+                    IntegratorId = "",
+                    Localization = new Localization {LanguageCode = "", LocaleCode = ""},
+                    MeterNumber = "",
+                    Region = ExpressRegionCode.US,
+                    RegionSpecified = true
+                },
+                ConsolidationKey = null,
+                RequestedShipment = new RequestedShipment
+                {
+                    BlockInsightVisibility = false,
+                    BlockInsightVisibilitySpecified = false,
+                    ConfigurationData = new DangerousGoodsDetail[0],
+                    CustomsClearanceDetail = new CustomsClearanceDetail(),
+                    DeliveryInstructions= "" ,
+                    DropoffType = DropoffType.BUSINESS_SERVICE_CENTER ,
+                    DropoffTypeSpecified = true,
+                    EdtRequestType = EdtRequestType.ALL,
+                    EdtRequestTypeSpecified = true,
+                    ExpressFreightDetail = new ExpressFreightDetail(),
+                    FreightShipmentDetail = new FreightShipmentDetail(),
+                    LabelSpecification = new LabelSpecification(),
+                    Origin = new ContactAndAddress(),
+                    PackageCount = "",
+                    PackagingType = PackagingType.YOUR_PACKAGING,
+                    PackagingTypeSpecified = true,
+                    PickupDetail = new PickupDetail(),
+                    PreferredCurrency = "",
+                    RateRequestTypes = new RateRequestType[0],
+                    Recipient = new Party(),
+                    RecipientLocationNumber = "",
+                    RequestedPackageLineItems = new RequestedPackageLineItem[0],
+                    ServiceType = ServiceType.FEDEX_GROUND,
+                    ServiceTypeSpecified = true,
+                    ShipTimestamp = DateTime.Now,
+                    ShipTimestampSpecified = true,
+                    ShipmentAuthorizationDetail = new ShipmentAuthorizationDetail(),
+                    ShipmentOnlyFields = new ShipmentOnlyFieldsType[0],
+                    Shipper = new Party(),
+                    ShippingChargesPayment = new Payment(),
+                    ShippingDocumentSpecification = new ShippingDocumentSpecification(),
+                    SmartPostDetail = new SmartPostShipmentDetail(),
+                    SoldTo = new Party(),
+                    SpecialServicesRequested = new ShipmentSpecialServicesRequested(),
+                    TotalInsuredValue = new Money(),
+                    TotalWeight = new Weight(),
+                    VariableHandlingChargeDetail = new VariableHandlingChargeDetail(),
+                    VariationOptions = new ShipmentVariationOptionDetail[0] 
+                },
+                ReturnTransitAndCommit = false,
+                ReturnTransitAndCommitSpecified = false,
+                TransactionDetail = new TransactionDetail
+                {
+                    CustomerTransactionId = "",
+                    Localization = new Localization {LanguageCode = "", LocaleCode = ""}
+                },
+                VariableOptions = new ServiceOptionType[0],
+                Version = new VersionId {Intermediate = 0, Major = 0, Minor = 0, ServiceId = ""},
+                WebAuthenticationDetail = new WebAuthenticationDetail {ParentCredential = null, UserCredential = null}
+            };
+
+            var result = rateService.getRates(rateRequest);
 
             return new List<ShippingRate>
             {

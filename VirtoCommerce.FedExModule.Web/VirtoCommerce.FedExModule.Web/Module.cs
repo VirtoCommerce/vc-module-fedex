@@ -7,6 +7,8 @@ namespace VirtoCommerce.FedExModule.Web
 {
     public class Module : ModuleBase
     {
+        public static string FedExServiceUrl = "https://wsbeta.fedex.com:443/web-services/rate";
+
         private readonly IUnityContainer _container;
 
         public Module(IUnityContainer container)
