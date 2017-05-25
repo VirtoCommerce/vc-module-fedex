@@ -28,8 +28,45 @@ namespace VirtoCommerce.FedExModule.Web
         {
             var settingManager = _container.Resolve<ISettingsManager>();
             var shippingService = _container.Resolve<IShippingMethodsService>();
+
+            var settings = settingManager.GetModuleSettings("FedExShippingMethodModule");
+            var fedexSettings = new FedexWebServiceSettings();
+
+            foreach (var settingEntry in settings)
+            {
+                if (settingEntry.Name == "Fedex.Connection.DeveloperKey")
+                {
+                    fedexSettings.DeveloperKey = settingEntry.Value;
+                }
+
+                if (settingEntry.Name == "Catalog.Connection.AccountNumber")
+                {
+                    fedexSettings.AccountNumber = settingEntry.Value;
+                }
+
+                if (settingEntry.Name == "Catalog.Connection.MeterNumber")
+                {
+                    fedexSettings.MeterNumber = settingEntry.Value;
+                }
+                
+                if (settingEntry.Name == "Catalog.Connection.IntegratorId")
+                {
+                    fedexSettings.IntegratorId = settingEntry.Value;
+                }
+
+                if (settingEntry.Name == "Catalog.Connection.Password")
+                {
+                    fedexSettings.Password = settingEntry.Value;
+                }
+
+                if (settingEntry.Name == "Catalog.Connection.WebServiceUrl")
+                {
+                    fedexSettings.WebServiceUrl = settingEntry.Value;
+                }
+            }
+
             shippingService.RegisterShippingMethod(
-                () => new FedExShippingMethod(settingManager.GetModuleSettings("FedExShippingMethodModule"), "FedEx"));
+                () => new FedExShippingMethod(fedexSettings, "FedEx"));
         }
     }
 }

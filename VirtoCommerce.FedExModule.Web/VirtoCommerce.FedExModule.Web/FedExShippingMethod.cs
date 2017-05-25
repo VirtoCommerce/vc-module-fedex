@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using VirtoCommerce.Domain.Common;
 using VirtoCommerce.Domain.Shipping.Model;
 using VirtoCommerce.FedExModule.Web.Integration;
-using VirtoCommerce.Platform.Core.Settings;
 
 namespace VirtoCommerce.FedExModule.Web
 {
@@ -11,9 +10,9 @@ namespace VirtoCommerce.FedExModule.Web
     {
         // https://github.com/VirtoCommerce/vc-module-core/blob/210bc9c16d68284fa50fda9c1df226a0519b4386/VirtoCommerce.CoreModule.Data/Shipping/FixedRateShipmentMethod.cs
 
-        private readonly SettingEntry[] _settings;
+        private readonly FedexWebServiceSettings _settings;
 
-        public FedExShippingMethod(SettingEntry[] settings, string code) : base(code)
+        public FedExShippingMethod(FedexWebServiceSettings settings, string code) : base(code)
         {
             _settings = settings;
         }
@@ -25,18 +24,19 @@ namespace VirtoCommerce.FedExModule.Web
             {
                 throw new NullReferenceException("shippingEvalContext");
             }
-
-            var rateService = new Integration.RateService();
+            
+            var rateService = new RateService();
+            rateService.Url = _settings.WebServiceUrl;
 
             var rateRequest = new RateRequest
             {
                 CarrierCodes = new CarrierCodeType[0],
                 ClientDetail = new ClientDetail
                 {
-                    AccountNumber = "",
-                    IntegratorId = "",
+                    AccountNumber = _settings.AccountNumber,
+                    IntegratorId = _settings.IntegratorId,
                     Localization = new Localization {LanguageCode = "", LocaleCode = ""},
-                    MeterNumber = "",
+                    MeterNumber = _settings.MeterNumber,
                     Region = ExpressRegionCode.US,
                     RegionSpecified = true
                 },
@@ -47,8 +47,8 @@ namespace VirtoCommerce.FedExModule.Web
                     BlockInsightVisibilitySpecified = false,
                     ConfigurationData = new DangerousGoodsDetail[0],
                     CustomsClearanceDetail = new CustomsClearanceDetail(),
-                    DeliveryInstructions= "" ,
-                    DropoffType = DropoffType.BUSINESS_SERVICE_CENTER ,
+                    DeliveryInstructions = "",
+                    DropoffType = DropoffType.BUSINESS_SERVICE_CENTER,
                     DropoffTypeSpecified = true,
                     EdtRequestType = EdtRequestType.ALL,
                     EdtRequestTypeSpecified = true,
@@ -80,7 +80,7 @@ namespace VirtoCommerce.FedExModule.Web
                     TotalInsuredValue = new Money(),
                     TotalWeight = new Weight(),
                     VariableHandlingChargeDetail = new VariableHandlingChargeDetail(),
-                    VariationOptions = new ShipmentVariationOptionDetail[0] 
+                    VariationOptions = new ShipmentVariationOptionDetail[0]
                 },
                 ReturnTransitAndCommit = false,
                 ReturnTransitAndCommitSpecified = false,
@@ -90,8 +90,16 @@ namespace VirtoCommerce.FedExModule.Web
                     Localization = new Localization {LanguageCode = "", LocaleCode = ""}
                 },
                 VariableOptions = new ServiceOptionType[0],
-                Version = new VersionId {Intermediate = 0, Major = 0, Minor = 0, ServiceId = ""},
-                WebAuthenticationDetail = new WebAuthenticationDetail {ParentCredential = null, UserCredential = null}
+                Version = new VersionId(),
+                WebAuthenticationDetail = new WebAuthenticationDetail
+                {
+                    ParentCredential = null,
+                    UserCredential = new WebAuthenticationCredential
+                    {
+                        Key = _settings.DeveloperKey,
+                        Password = _settings.Password
+                    }
+                }
             };
 
             var result = rateService.getRates(rateRequest);

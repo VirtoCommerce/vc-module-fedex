@@ -17,6 +17,53 @@
     <directory virtualPath="$/Scripts" searchPattern="*.js" searchSubdirectories="true" />
   </scripts>
 
+  <settings>
+    <group name="FedEx|General">
+      <setting>
+        <name>Fedex.Connection.DeveloperKey</name>
+        <valueType>string</valueType>
+        <defaultValue></defaultValue>
+        <title>Developer Key</title>
+        <description>Web service key.</description>
+      </setting>
+      <setting>
+        <name>Catalog.Connection.Password</name>
+        <valueType>string</valueType>
+        <defaultValue></defaultValue>
+        <title>Password</title>
+        <description>Password.</description>
+      </setting>
+      <setting>
+        <name>Catalog.Connection.AccountNumber</name>
+        <valueType>string</valueType>
+        <defaultValue></defaultValue>
+        <title>Account Number</title>
+        <description>Account number.</description>
+      </setting>
+      <setting>
+        <name>Catalog.Connection.MeterNumber</name>
+        <valueType>string</valueType>
+        <defaultValue></defaultValue>
+        <title>Meter Number</title>
+        <description>Meter number.</description>
+      </setting>
+      <setting>
+        <name>Catalog.Connection.IntegratorId</name>
+        <valueType>string</valueType>
+        <defaultValue></defaultValue>
+        <title>Integrator ID</title>
+        <description>Integrator ID.</description>
+      </setting>
+      <setting>
+        <name>Catalog.Connection.WebServiceUrl</name>
+        <valueType>string</valueType>
+        <defaultValue></defaultValue>
+        <title>Web Service Endpoint URL</title>
+        <description>Web service endpoint URL.</description>
+      </setting>
+    </group>
+  </settings>
+  
   <permissions>
     <group name="FedEx">
       <permission id="fedEx:access" name="Open FedEx menu" description=""/>
