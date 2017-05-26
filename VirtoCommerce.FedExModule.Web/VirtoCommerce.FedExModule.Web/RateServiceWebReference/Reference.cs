@@ -12,8 +12,9 @@
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
-        public RateService() {
-            this.Url = global::VirtoCommerce.FedExModule.Web.Module.FedExServiceUrl;
+        public RateService(string url)
+        {
+            this.Url = url;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;

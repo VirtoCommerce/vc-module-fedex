@@ -15,6 +15,8 @@ namespace VirtoCommerce.FedExModule.Web
         public FedExShippingMethod(FedexWebServiceSettings settings, string code) : base(code)
         {
             _settings = settings;
+            Name = "Fedex Shipping Method";
+            Description = "Simple shipping method for a rough cost.";
         }
 
         public override IEnumerable<ShippingRate> CalculateRates(IEvaluationContext context)
@@ -25,8 +27,7 @@ namespace VirtoCommerce.FedExModule.Web
                 throw new NullReferenceException("shippingEvalContext");
             }
             
-            var rateService = new RateService();
-            rateService.Url = _settings.WebServiceUrl;
+            var rateService = new RateService(_settings.WebServiceUrl);
 
             var rateRequest = new RateRequest
             {
