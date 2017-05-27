@@ -3,7 +3,7 @@
 namespace VirtoCommerce.FedExModule.Web.Tests
 {
     [TestClass]
-    public class UnitTest1
+    public class FedExRateServiceTests
     {
         [TestMethod]
         public void TestMethod1()

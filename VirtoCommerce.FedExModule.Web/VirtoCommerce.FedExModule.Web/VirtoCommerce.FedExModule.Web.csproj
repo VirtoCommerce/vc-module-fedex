@@ -113,12 +113,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\Api\FedExModuleController.cs" />
+    <Compile Include="FedExPackageCreator.cs" />
     <Compile Include="FedExRateService.cs" />
     <Compile Include="FedExShippingMethod.cs" />
     <Compile Include="FedexWebServiceSettings.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RateServiceWebReference\Reference.cs" />
+    <Compile Include="VolumeConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
