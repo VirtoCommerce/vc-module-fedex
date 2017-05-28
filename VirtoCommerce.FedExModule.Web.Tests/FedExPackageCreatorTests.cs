@@ -38,9 +38,9 @@ namespace VirtoCommerce.FedExModule.Web.Tests
             Assert.AreEqual(WeightUnits.LB, package.Weight.Units);
             Assert.AreEqual(true, package.Weight.UnitsSpecified);
 
-            Assert.AreEqual("9.48", package.Dimensions.Height);
-            Assert.AreEqual("9.48", package.Dimensions.Length);
-            Assert.AreEqual("9.48", package.Dimensions.Width);
+            Assert.AreEqual("11", package.Dimensions.Height);
+            Assert.AreEqual("11", package.Dimensions.Length);
+            Assert.AreEqual("11", package.Dimensions.Width);
             Assert.AreEqual(LinearUnits.IN, package.Dimensions.Units);
             Assert.AreEqual(true, package.Dimensions.UnitsSpecified);
             Assert.AreEqual(PhysicalPackagingType.CARTON, package.PhysicalPackaging);

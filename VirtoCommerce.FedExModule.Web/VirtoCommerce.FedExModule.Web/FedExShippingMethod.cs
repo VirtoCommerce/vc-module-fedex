@@ -8,12 +8,12 @@ namespace VirtoCommerce.FedExModule.Web
     public class FedExShippingMethod : ShippingMethod
     {
         // https://github.com/VirtoCommerce/vc-module-core/blob/210bc9c16d68284fa50fda9c1df226a0519b4386/VirtoCommerce.CoreModule.Data/Shipping/FixedRateShipmentMethod.cs
-
-        private readonly FedexWebServiceSettings _settings;
+        
+        public FedexWebServiceSettings FedExSettings { get; private set; }
 
         public FedExShippingMethod(FedexWebServiceSettings settings, string code) : base(code)
         {
-            _settings = settings;
+            FedExSettings = settings;
             Name = "Fedex Shipping Method";
             Description = "Simple shipping method for a rough cost.";
         }
@@ -27,7 +27,7 @@ namespace VirtoCommerce.FedExModule.Web
             }
 
             var service = new FedExRateService();
-            return service.GetRatesForShoppingCart(this, shippingEvalContext.ShoppingCart, _settings);
+            return service.GetRatesForShoppingCart(this, shippingEvalContext.ShoppingCart);
 
         }
 }

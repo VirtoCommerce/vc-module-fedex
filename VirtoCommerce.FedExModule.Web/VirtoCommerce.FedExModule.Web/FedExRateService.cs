@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using VirtoCommerce.Domain.Cart.Model;
+using VirtoCommerce.Domain.Commerce.Model;
 using VirtoCommerce.Domain.Shipping.Model;
 using VirtoCommerce.FedExModule.Web.Integration;
 
@@ -9,17 +9,37 @@ namespace VirtoCommerce.FedExModule.Web
 {
     public class FedExRateService
     {
-        public IEnumerable<ShippingRate> GetRatesForShoppingCart(FedExShippingMethod fedExShippingMethod, ShoppingCart shoppingCart, FedexWebServiceSettings settings)
+        public IEnumerable<ShippingRate> GetRatesForShoppingCart(FedExShippingMethod fedExShippingMethod, ShoppingCart shoppingCart)
         {
             var packages = FedExPackageCreator.CreatePackagesFromShoppingCart(shoppingCart);
 
-            var rateService = new RateService(settings.WebServiceUrl);
+            var rateService = new RateService(fedExShippingMethod.FedExSettings.WebServiceUrl);
 
-            var rateRequest = CreateDefaultRateRequest(settings);
+            var rateRequest = CreateDefaultRateRequest(fedExShippingMethod.FedExSettings);
             rateRequest.RequestedShipment.RequestedPackageLineItems = packages;
+            rateRequest.RequestedShipment.PackageCount = packages.Length.ToString();
+            
+            rateRequest.RequestedShipment.Shipper = new Party
+            {
+                Address = new Integration.Address
+                {
+                    City = "Great Falls",
+                    CountryCode = "US",
+                    CountryName = "United States",
+                    PostalCode = "59401",
+                    Residential = true,
+                    ResidentialSpecified = true,
+                    StateOrProvinceCode = "MT",
+                    StreetLines = new[] { "513 27th St. North" },
+                    UrbanizationCode = string.Empty
+                }
+            };
+            rateRequest.RequestedShipment.Recipient = new Party
+            {
+                Address = GetRecipientAddress(shoppingCart)
+            };
 
             var result = rateService.getRates(rateRequest);
-
             return result.RateReplyDetails.Select(r => new ShippingRate
             {
                 Currency = "USD",
@@ -27,79 +47,59 @@ namespace VirtoCommerce.FedExModule.Web
                 DiscountAmountWithTax = 0,
                 OptionDescription = r.ServiceType.ToString(),
                 OptionName = r.ServiceType.ToString(),
-                Rate = 1.70m,
-                RateWithTax = 1.75M,
+                Rate = r.RatedShipmentDetails[0].ShipmentRateDetail.TotalNetCharge.Amount,
+                RateWithTax = r.RatedShipmentDetails[0].ShipmentRateDetail.TotalNetChargeWithDutiesAndTaxes.Amount,
                 ShippingMethod = fedExShippingMethod
             });
+        }
+
+        private Integration.Address GetRecipientAddress(ShoppingCart shoppingCart)
+        {
+            var address =
+                shoppingCart.Addresses.FirstOrDefault(a => a.AddressType == AddressType.BillingAndShipping ||
+                                                           a.AddressType == AddressType.Shipping);
+
+            if (address != null)
+            {
+                return new Integration.Address
+                {
+                    City = address.City,
+                    CountryCode = address.CountryCode,
+                    CountryName = address.CountryCode,
+                    PostalCode = address.PostalCode,
+                    Residential = true,
+                    ResidentialSpecified = true,
+                    StateOrProvinceCode = address.RegionId,
+                    StreetLines = new[] {address.Line1},
+                    UrbanizationCode = string.Empty
+                };
+            }
+
+            return new Integration.Address();
         }
 
         private RateRequest CreateDefaultRateRequest(FedexWebServiceSettings settings)
         {
             return new RateRequest
             {
-                CarrierCodes = new CarrierCodeType[0],
                 ClientDetail = new ClientDetail
                 {
                     AccountNumber = settings.AccountNumber,
                     IntegratorId = settings.IntegratorId,
-                    Localization = new Localization { LanguageCode = "", LocaleCode = "" },
                     MeterNumber = settings.MeterNumber,
                     Region = ExpressRegionCode.US,
                     RegionSpecified = true
                 },
-                ConsolidationKey = null,
                 RequestedShipment = new RequestedShipment
                 {
-                    BlockInsightVisibility = false,
-                    BlockInsightVisibilitySpecified = false,
-                    ConfigurationData = new DangerousGoodsDetail[0],
-                    CustomsClearanceDetail = new CustomsClearanceDetail(),
-                    DeliveryInstructions = "",
-                    DropoffType = DropoffType.BUSINESS_SERVICE_CENTER,
+                    DropoffType = DropoffType.REGULAR_PICKUP,
                     DropoffTypeSpecified = true,
-                    EdtRequestType = EdtRequestType.ALL,
-                    EdtRequestTypeSpecified = true,
-                    ExpressFreightDetail = new ExpressFreightDetail(),
-                    FreightShipmentDetail = new FreightShipmentDetail(),
-                    LabelSpecification = new LabelSpecification(),
-                    Origin = new ContactAndAddress(),
-                    PackageCount = "",
                     PackagingType = PackagingType.YOUR_PACKAGING,
                     PackagingTypeSpecified = true,
-                    PickupDetail = new PickupDetail(),
-                    PreferredCurrency = "",
-                    RateRequestTypes = new[]
-                    {
-                        RateRequestType.LIST
-                    },
-                    Recipient = new Party(),
-                    RecipientLocationNumber = "",
-                    RequestedPackageLineItems = new RequestedPackageLineItem[0],
-                    ServiceType = ServiceType.FEDEX_GROUND,
-                    ServiceTypeSpecified = true,
-                    ShipTimestamp = DateTime.Now,
-                    ShipTimestampSpecified = true,
-                    ShipmentAuthorizationDetail = new ShipmentAuthorizationDetail(),
-                    ShipmentOnlyFields = new ShipmentOnlyFieldsType[0],
-                    Shipper = new Party(),
-                    ShippingChargesPayment = new Integration.Payment(),
-                    ShippingDocumentSpecification = new ShippingDocumentSpecification(),
-                    SmartPostDetail = new SmartPostShipmentDetail(),
-                    SoldTo = new Party(),
-                    SpecialServicesRequested = new ShipmentSpecialServicesRequested(),
-                    TotalInsuredValue = new Money(),
-                    TotalWeight = new Weight(),
-                    VariableHandlingChargeDetail = new VariableHandlingChargeDetail(),
-                    VariationOptions = new ShipmentVariationOptionDetail[0]
+                    RateRequestTypes = new [] { RateRequestType.LIST },
                 },
                 ReturnTransitAndCommit = false,
                 ReturnTransitAndCommitSpecified = false,
-                TransactionDetail = new TransactionDetail
-                {
-                    CustomerTransactionId = "",
-                    Localization = new Localization { LanguageCode = "", LocaleCode = "" }
-                },
-                VariableOptions = new ServiceOptionType[0],
                 Version = new VersionId(),
                 WebAuthenticationDetail = new WebAuthenticationDetail
                 {

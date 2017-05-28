@@ -31,7 +31,12 @@ namespace VirtoCommerce.FedExModule.Web
                 totalVolume += volume;
             }
             
-            var packageDimension = Math.Round(totalVolume.ToCubeDimension() * 1.05, 2, MidpointRounding.AwayFromZero).ToString(CultureInfo.InvariantCulture);
+            var packageDimension = Math.Round(totalVolume.ToCubeDimension() + 1.5, 2, MidpointRounding.AwayFromZero);
+
+            if (packageDimension % 1 > 0)
+            {
+                packageDimension = Math.Ceiling(packageDimension);
+            }
 
             var package = new RequestedPackageLineItem
             {
@@ -39,20 +44,20 @@ namespace VirtoCommerce.FedExModule.Web
                 CustomerReferences = new CustomerReference[0],
                 Dimensions = new Dimensions
                 {
-                    Height = packageDimension,
-                    Length = packageDimension,
+                    Height = packageDimension.ToString(CultureInfo.InvariantCulture),
+                    Length = packageDimension.ToString(CultureInfo.InvariantCulture),
                     Units = LinearUnits.IN,
                     UnitsSpecified = true,
-                    Width = packageDimension
+                    Width = packageDimension.ToString(CultureInfo.InvariantCulture)
                 },
-                GroupNumber = string.Empty,
-                GroupPackageCount = string.Empty,
+                GroupNumber = "0",
+                GroupPackageCount = "1",
                 InsuredValue = null,
                 ItemDescription = string.Empty,
                 ItemDescriptionForClearance = string.Empty,
                 PhysicalPackaging = PhysicalPackagingType.CARTON,
                 PhysicalPackagingSpecified = true,
-                SequenceNumber = string.Empty,
+                SequenceNumber = null,
                 SpecialServicesRequested = null,
                 VariableHandlingChargeDetail = null,
                 Weight = new Weight

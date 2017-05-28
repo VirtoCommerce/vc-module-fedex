@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <module>
   <id>VirtoCommerce.FedEx</id>
-  <version>0.0.15</version>
+  <version>0.0.19</version>
   <platformVersion>2.10.0</platformVersion>
   <title>FedEx Shipping Method Module</title>
   <description>Provides FedEx shipping rates based on product and destination attributes.</description>
@@ -27,37 +27,37 @@
         <description>Web service key.</description>
       </setting>
       <setting>
-        <name>Catalog.Connection.Password</name>
+        <name>FedEx.Connection.Password</name>
         <valueType>string</valueType>
         <defaultValue></defaultValue>
         <title>Password</title>
         <description>Password.</description>
       </setting>
       <setting>
-        <name>Catalog.Connection.AccountNumber</name>
+        <name>FedEx.Connection.AccountNumber</name>
         <valueType>string</valueType>
         <defaultValue></defaultValue>
         <title>Account Number</title>
         <description>Account number.</description>
       </setting>
       <setting>
-        <name>Catalog.Connection.MeterNumber</name>
+        <name>FedEx.Connection.MeterNumber</name>
         <valueType>string</valueType>
         <defaultValue></defaultValue>
         <title>Meter Number</title>
         <description>Meter number.</description>
       </setting>
       <setting>
-        <name>Catalog.Connection.IntegratorId</name>
+        <name>FedEx.Connection.IntegratorId</name>
         <valueType>string</valueType>
         <defaultValue></defaultValue>
         <title>Integrator ID</title>
         <description>Integrator ID.</description>
       </setting>
       <setting>
-        <name>Catalog.Connection.WebServiceUrl</name>
+        <name>FedEx.Connection.WebServiceUrl</name>
         <valueType>string</valueType>
-        <defaultValue></defaultValue>
+        <defaultValue>https://wsbeta.fedex.com:443/web-services</defaultValue>
         <title>Web Service Endpoint URL</title>
         <description>Web service endpoint URL.</description>
       </setting>
