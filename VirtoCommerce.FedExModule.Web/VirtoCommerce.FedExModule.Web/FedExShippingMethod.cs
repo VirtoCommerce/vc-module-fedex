@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using VirtoCommerce.Domain.Cart.Services;
 using VirtoCommerce.Domain.Common;
 using VirtoCommerce.Domain.Shipping.Model;
 
@@ -7,12 +8,14 @@ namespace VirtoCommerce.FedExModule.Web
 {
     public class FedExShippingMethod : ShippingMethod
     {
+        private readonly IShoppingCartService _shoppingCartService;
         // https://github.com/VirtoCommerce/vc-module-core/blob/210bc9c16d68284fa50fda9c1df226a0519b4386/VirtoCommerce.CoreModule.Data/Shipping/FixedRateShipmentMethod.cs
-        
+
         public FedexWebServiceSettings FedExSettings { get; private set; }
 
-        public FedExShippingMethod(FedexWebServiceSettings settings, string code) : base(code)
+        public FedExShippingMethod(FedexWebServiceSettings settings, IShoppingCartService shoppingCartService, string code) : base(code)
         {
+            _shoppingCartService = shoppingCartService;
             FedExSettings = settings;
             Name = "Fedex Shipping Method";
             Description = "Simple shipping method for a rough cost.";
@@ -27,8 +30,7 @@ namespace VirtoCommerce.FedExModule.Web
             }
 
             var service = new FedExRateService();
-            return service.GetRatesForShoppingCart(this, shippingEvalContext.ShoppingCart);
-
+            return service.GetRatesForShoppingCart(this, shippingEvalContext.ShoppingCart, _shoppingCartService);
         }
-}
+    }
 }

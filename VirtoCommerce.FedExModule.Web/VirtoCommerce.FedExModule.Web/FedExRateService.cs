@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using VirtoCommerce.Domain.Cart.Model;
-using VirtoCommerce.Domain.Commerce.Model;
+using VirtoCommerce.Domain.Cart.Services;
 using VirtoCommerce.Domain.Shipping.Model;
 using VirtoCommerce.FedExModule.Web.Integration;
 
@@ -9,7 +11,7 @@ namespace VirtoCommerce.FedExModule.Web
 {
     public class FedExRateService
     {
-        public IEnumerable<ShippingRate> GetRatesForShoppingCart(FedExShippingMethod fedExShippingMethod, ShoppingCart shoppingCart)
+        public IEnumerable<ShippingRate> GetRatesForShoppingCart(FedExShippingMethod fedExShippingMethod, ShoppingCart shoppingCart, IShoppingCartService shoppingCartService)
         {
             var packages = FedExPackageCreator.CreatePackagesFromShoppingCart(shoppingCart);
 
@@ -34,12 +36,19 @@ namespace VirtoCommerce.FedExModule.Web
                     UrbanizationCode = string.Empty
                 }
             };
-            rateRequest.RequestedShipment.Recipient = new Party
-            {
-                Address = GetRecipientAddress(shoppingCart)
-            };
-
+            
+                rateRequest.RequestedShipment.Recipient = new Party
+                {
+                    Address = GetRecipientAddress(shoppingCart)
+                };
+            
             var result = rateService.getRates(rateRequest);
+
+            if (result.HighestSeverity != NotificationSeverityType.SUCCESS)
+            {
+                throw new Exception($"Request: {JsonConvert.SerializeObject(rateRequest)} Result: {JsonConvert.SerializeObject(result)}");
+            }
+
             return result.RateReplyDetails.Select(r => new ShippingRate
             {
                 Currency = "USD",
@@ -55,16 +64,13 @@ namespace VirtoCommerce.FedExModule.Web
 
         private Integration.Address GetRecipientAddress(ShoppingCart shoppingCart)
         {
-            var address =
-                shoppingCart.Addresses.FirstOrDefault(a => a.AddressType == AddressType.BillingAndShipping ||
-                                                           a.AddressType == AddressType.Shipping);
-
-            if (address != null)
+            try
             {
+                var address = shoppingCart.Shipments.First().DeliveryAddress;
                 return new Integration.Address
                 {
                     City = address.City,
-                    CountryCode = address.CountryCode,
+                    CountryCode = "US",
                     CountryName = address.CountryCode,
                     PostalCode = address.PostalCode,
                     Residential = true,
@@ -74,8 +80,10 @@ namespace VirtoCommerce.FedExModule.Web
                     UrbanizationCode = string.Empty
                 };
             }
-
-            return new Integration.Address();
+            catch (Exception e)
+            {
+                throw new Exception($"Shopping Cart {JsonConvert.SerializeObject(shoppingCart)}");
+            }
         }
 
         private RateRequest CreateDefaultRateRequest(FedexWebServiceSettings settings)
