@@ -55,9 +55,9 @@ namespace VirtoCommerce.FedExModule.Web.Tests
                 WebServiceUrl = "https://wsbeta.fedex.com:443/web-services",
                 Password = "vNwtV1TisgkpzVDmCzWFPNpuW"
             };
-            var shippingMethod = new FedExShippingMethod(settings, null, "fedex");
+            var shippingMethod = new FedExShippingMethod(settings, null, null, "fedex");
 
-            var result = rateService.GetRatesForShoppingCart(shippingMethod, shoppingCart, null);
+            var result = rateService.GetRatesForShoppingCart(shippingMethod, shoppingCart, null, null);
         }
     }
 }

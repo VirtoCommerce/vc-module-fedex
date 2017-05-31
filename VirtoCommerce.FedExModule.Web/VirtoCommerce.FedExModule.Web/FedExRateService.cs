@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using VirtoCommerce.Domain.Cart.Model;
-using VirtoCommerce.Domain.Cart.Services;
+using VirtoCommerce.Domain.Commerce.Model;
+using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Shipping.Model;
 using VirtoCommerce.FedExModule.Web.Integration;
 
@@ -11,8 +12,11 @@ namespace VirtoCommerce.FedExModule.Web
 {
     public class FedExRateService
     {
-        public IEnumerable<ShippingRate> GetRatesForShoppingCart(FedExShippingMethod fedExShippingMethod, ShoppingCart shoppingCart, IShoppingCartService shoppingCartService)
+        public IEnumerable<ShippingRate> GetRatesForShoppingCart(FedExShippingMethod fedExShippingMethod,
+            ShoppingCart shoppingCart, FulfillmentCenter storeFulfillmentCenter, ICommerceService commerceService)
         {
+            var shipperAddress = GetShipperAddress(shoppingCart, storeFulfillmentCenter, commerceService);
+
             var packages = FedExPackageCreator.CreatePackagesFromShoppingCart(shoppingCart);
 
             var rateService = new RateService(fedExShippingMethod.FedExSettings.WebServiceUrl);
@@ -20,33 +24,23 @@ namespace VirtoCommerce.FedExModule.Web
             var rateRequest = CreateDefaultRateRequest(fedExShippingMethod.FedExSettings);
             rateRequest.RequestedShipment.RequestedPackageLineItems = packages;
             rateRequest.RequestedShipment.PackageCount = packages.Length.ToString();
-            
+
             rateRequest.RequestedShipment.Shipper = new Party
             {
-                Address = new Integration.Address
-                {
-                    City = "Great Falls",
-                    CountryCode = "US",
-                    CountryName = "United States",
-                    PostalCode = "59401",
-                    Residential = true,
-                    ResidentialSpecified = true,
-                    StateOrProvinceCode = "MT",
-                    StreetLines = new[] { "513 27th St. North" },
-                    UrbanizationCode = string.Empty
-                }
+                Address = shipperAddress
             };
-            
-                rateRequest.RequestedShipment.Recipient = new Party
-                {
-                    Address = GetRecipientAddress(shoppingCart)
-                };
-            
+
+            rateRequest.RequestedShipment.Recipient = new Party
+            {
+                Address = GetRecipientAddress(shoppingCart)
+            };
+
             var result = rateService.getRates(rateRequest);
 
             if (result.HighestSeverity != NotificationSeverityType.SUCCESS)
             {
-                throw new Exception($"Request: {JsonConvert.SerializeObject(rateRequest)} Result: {JsonConvert.SerializeObject(result)}");
+                throw new Exception(
+                    $"Request: {JsonConvert.SerializeObject(rateRequest)} Result: {JsonConvert.SerializeObject(result)}");
             }
 
             return result.RateReplyDetails.Select(r => new ShippingRate
@@ -62,6 +56,61 @@ namespace VirtoCommerce.FedExModule.Web
             });
         }
 
+        private Integration.Address GetShipperAddress(ShoppingCart shoppingCart,
+            FulfillmentCenter storeFulfillmentCenter, ICommerceService commerceService)
+        {
+            var shoppingCartFulfillmentCenter = storeFulfillmentCenter;
+            var warehouseLocations = shoppingCart.Shipments.Select(s => s.WarehouseLocation).Distinct().ToList();
+            var fulfillmentLocationCodes = shoppingCart.Items.Select(i => i.FulfillmentLocationCode).Distinct()
+                .ToList();
+            if (warehouseLocations.Any())
+            {
+                var allFulfillmentCenters = commerceService.GetAllFulfillmentCenters().ToList();
+                var match = allFulfillmentCenters.FirstOrDefault(f => f.Id == warehouseLocations.First());
+                if (match != null)
+                {
+                    shoppingCartFulfillmentCenter = match;
+                }
+                else if (fulfillmentLocationCodes.Any())
+                {
+                    match = allFulfillmentCenters.FirstOrDefault(f => f.Id == fulfillmentLocationCodes.First());
+                    if (match != null)
+                    {
+                        shoppingCartFulfillmentCenter = match;
+                    }
+                }
+            }
+
+            if (shoppingCartFulfillmentCenter == null)
+            {
+                throw new Exception(
+                    $"No configured or set fulfillment center. WarehouseLocations: {JsonConvert.SerializeObject(warehouseLocations)}  FulfillmentLocationCodes: {JsonConvert.SerializeObject(fulfillmentLocationCodes)} StoreFulfillmentCenter: {JsonConvert.SerializeObject(storeFulfillmentCenter)}");
+            }
+
+            return new Integration.Address
+            {
+                City = shoppingCartFulfillmentCenter.City,
+                CountryCode = GetFedexCountryCode(shoppingCartFulfillmentCenter.CountryCode),
+                CountryName = shoppingCartFulfillmentCenter.CountryName,
+                PostalCode = shoppingCartFulfillmentCenter.PostalCode,
+                Residential = true,
+                ResidentialSpecified = true,
+                StateOrProvinceCode = shoppingCartFulfillmentCenter.StateProvince,
+                StreetLines = new[] {shoppingCartFulfillmentCenter.Line1},
+                UrbanizationCode = string.Empty
+            };
+        }
+
+        private string GetFedexCountryCode(string shoppingCartCountryCode)
+        {
+            if (shoppingCartCountryCode == "USA")
+            {
+                return "US";
+            }
+
+            return string.Empty;
+        }
+
         private Integration.Address GetRecipientAddress(ShoppingCart shoppingCart)
         {
             try
@@ -70,7 +119,7 @@ namespace VirtoCommerce.FedExModule.Web
                 return new Integration.Address
                 {
                     City = address.City,
-                    CountryCode = "US",
+                    CountryCode = GetFedexCountryCode(address.CountryCode),
                     CountryName = address.CountryCode,
                     PostalCode = address.PostalCode,
                     Residential = true,
@@ -80,7 +129,7 @@ namespace VirtoCommerce.FedExModule.Web
                     UrbanizationCode = string.Empty
                 };
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new Exception($"Shopping Cart {JsonConvert.SerializeObject(shoppingCart)}");
             }
@@ -104,7 +153,7 @@ namespace VirtoCommerce.FedExModule.Web
                     DropoffTypeSpecified = true,
                     PackagingType = PackagingType.YOUR_PACKAGING,
                     PackagingTypeSpecified = true,
-                    RateRequestTypes = new [] { RateRequestType.LIST },
+                    RateRequestTypes = new[] {RateRequestType.LIST},
                 },
                 ReturnTransitAndCommit = false,
                 ReturnTransitAndCommitSpecified = false,

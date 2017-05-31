@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.Practices.Unity;
-using Newtonsoft.Json;
-using VirtoCommerce.Domain.Cart.Services;
+﻿using Microsoft.Practices.Unity;
+using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Shipping.Services;
+using VirtoCommerce.Domain.Store.Services;
 using VirtoCommerce.Platform.Core.Modularity;
 using VirtoCommerce.Platform.Core.Settings;
 
@@ -16,7 +15,7 @@ namespace VirtoCommerce.FedExModule.Web
         {
             _container = container;
         }
-        
+
         public override void PostInitialize()
         {
             var settingManager = _container.Resolve<ISettingsManager>();
@@ -41,7 +40,7 @@ namespace VirtoCommerce.FedExModule.Web
                 {
                     fedexSettings.MeterNumber = settingEntry.Value;
                 }
-                
+
                 if (settingEntry.Name == "FedEx.Connection.IntegratorId")
                 {
                     fedexSettings.IntegratorId = settingEntry.Value;
@@ -57,9 +56,10 @@ namespace VirtoCommerce.FedExModule.Web
                     fedexSettings.WebServiceUrl = settingEntry.Value;
                 }
             }
-            
+
             shippingService.RegisterShippingMethod(
-                () => new FedExShippingMethod(fedexSettings, _container.Resolve<IShoppingCartService>(), "FedEx"));
+                () => new FedExShippingMethod(fedexSettings, _container.Resolve<IStoreService>(),
+                    _container.Resolve<ICommerceService>(), "FedEx"));
         }
     }
 }
