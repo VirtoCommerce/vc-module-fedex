@@ -49,11 +49,34 @@ namespace VirtoCommerce.FedExModule.Web
                 DiscountAmount = 0,
                 DiscountAmountWithTax = 0,
                 OptionDescription = r.ServiceType.ToString(),
-                OptionName = r.ServiceType.ToString(),
+                OptionName = GetShippingMethodName(r.ServiceType),
                 Rate = r.RatedShipmentDetails[0].ShipmentRateDetail.TotalNetCharge.Amount,
                 RateWithTax = r.RatedShipmentDetails[0].ShipmentRateDetail.TotalNetChargeWithDutiesAndTaxes.Amount,
                 ShippingMethod = fedExShippingMethod
             });
+        }
+
+        private string GetShippingMethodName(ServiceType serviceType)
+        {
+            switch (serviceType)
+            {
+                case ServiceType.FIRST_OVERNIGHT:
+                    return "First Overnight";
+                case ServiceType.PRIORITY_OVERNIGHT:
+                    return "Priority Overnight";
+                case ServiceType.STANDARD_OVERNIGHT:
+                    return "Overnight";
+                case ServiceType.FEDEX_2_DAY_AM:
+                    return "Two Day (AM)";
+                case ServiceType.FEDEX_2_DAY:
+                    return "Two Day";
+                case ServiceType.FEDEX_EXPRESS_SAVER:
+                    return "Express Saver";
+                case ServiceType.GROUND_HOME_DELIVERY:
+                    return "Ground";
+                default:
+                    return serviceType.ToString();
+            }
         }
 
         private Integration.Address GetShipperAddress(ShoppingCart shoppingCart,

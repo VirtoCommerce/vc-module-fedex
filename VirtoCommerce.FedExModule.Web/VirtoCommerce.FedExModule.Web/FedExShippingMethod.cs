@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using VirtoCommerce.Domain.Commerce.Services;
 using VirtoCommerce.Domain.Common;
 using VirtoCommerce.Domain.Shipping.Model;
@@ -21,7 +22,7 @@ namespace VirtoCommerce.FedExModule.Web
             _storeService = storeService;
             _commerceService = commerceService;
             FedExSettings = settings;
-            Name = "Fedex Shipping Method";
+            Name = "FedEx";
             Description = "Simple shipping method for a rough cost.";
         }
 
@@ -33,10 +34,16 @@ namespace VirtoCommerce.FedExModule.Web
                 throw new NullReferenceException("shippingEvalContext");
             }
 
-            var store = _storeService.GetById(shippingEvalContext.ShoppingCart.StoreId);
+            if (shippingEvalContext.ShoppingCart.Items.Any())
+            {
 
-            var service = new FedExRateService();
-            return service.GetRatesForShoppingCart(this, shippingEvalContext.ShoppingCart, store.FulfillmentCenter, _commerceService);
+                var store = _storeService.GetById(shippingEvalContext.ShoppingCart.StoreId);
+                var service = new FedExRateService();
+                return service.GetRatesForShoppingCart(this, shippingEvalContext.ShoppingCart, store.FulfillmentCenter,
+                    _commerceService);
+            }
+
+            return new List<ShippingRate>();
         }
     }
 }

@@ -21,7 +21,7 @@ namespace VirtoCommerce.FedExModule.Web
             var settingManager = _container.Resolve<ISettingsManager>();
             var shippingService = _container.Resolve<IShippingMethodsService>();
 
-            var settings = settingManager.GetModuleSettings("VirtoCommerce.FedEx");
+            var settings = settingManager.GetModuleSettings("VirtoCommerce.Montane.FedEx");
             var fedexSettings = new FedexWebServiceSettings();
 
             foreach (var settingEntry in settings)
@@ -59,7 +59,7 @@ namespace VirtoCommerce.FedExModule.Web
 
             shippingService.RegisterShippingMethod(
                 () => new FedExShippingMethod(fedexSettings, _container.Resolve<IStoreService>(),
-                    _container.Resolve<ICommerceService>(), "FedEx"));
+                    _container.Resolve<ICommerceService>(), "Montane.FedEx"));
         }
     }
 }
