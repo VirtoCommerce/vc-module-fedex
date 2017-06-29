@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Linq;
 using VirtoCommerce.Domain.Cart.Model;
 using VirtoCommerce.FedExModule.Web.Integration;
 
@@ -23,11 +22,14 @@ namespace VirtoCommerce.FedExModule.Web
                 double volume = height * width * length;
                 
                 var measureUnit = shoppingCartItem.MeasureUnit;
-                if (measureUnit.ToLowerInvariant() != "in")
+                if (measureUnit != null)
                 {
-                    // convert
+                    if (measureUnit.ToLowerInvariant() != "in")
+                    {
+                        // convert
+                    }
                 }
-
+                
                 totalWeight += (shoppingCartItem.Weight ?? 0.25m) * shoppingCartItem.Quantity;
                 totalVolume += volume;
             }

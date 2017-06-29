@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <module>
   <id>VirtoCommerce.Montane.FedEx</id>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <platformVersion>2.10.0</platformVersion>
   <title>FedEx Shipping Method Module</title>
   <description>Provides FedEx shipping rates based on product and destination attributes.</description>
